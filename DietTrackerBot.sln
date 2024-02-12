@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34525.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Function", "0 - Function", "{EA9F605E-DCAD-4D84-B6BD-62BE15C2D359}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Application", "1 - Application", "{2FDF3942-B95E-416B-957D-09F3846356D9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - Domain", "2 - Domain", "{FBCF468E-99DA-4B98-9246-7942D0C5CE8E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Infra", "3 - Infra", "{482BA2E1-7032-479B-808E-D4362E660F13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DietTrackerBot", "DietTrackerBot\DietTrackerBot.csproj", "{060B6B86-6B04-42DD-AD3A-2B42A16879C7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{060B6B86-6B04-42DD-AD3A-2B42A16879C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{060B6B86-6B04-42DD-AD3A-2B42A16879C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{060B6B86-6B04-42DD-AD3A-2B42A16879C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{060B6B86-6B04-42DD-AD3A-2B42A16879C7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{060B6B86-6B04-42DD-AD3A-2B42A16879C7} = {EA9F605E-DCAD-4D84-B6BD-62BE15C2D359}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9FE9AB38-384F-4D1A-B62E-7D9F3B6E3FE9}
+	EndGlobalSection
+EndGlobal
