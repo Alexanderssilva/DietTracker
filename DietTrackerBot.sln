@@ -11,13 +11,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - Domain", "2 - Domain", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Infra", "3 - Infra", "{482BA2E1-7032-479B-808E-D4362E660F13}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DietTrackerBot", "DietTrackerBot\DietTrackerBot.csproj", "{060B6B86-6B04-42DD-AD3A-2B42A16879C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DietTrackerBot.Application", "DietTrackerBot.Application\DietTrackerBot.Application.csproj", "{B3C51510-9B19-485F-A969-9549C04CE50E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DietTrackerBot.Application", "DietTrackerBot.Application\DietTrackerBot.Application.csproj", "{B3C51510-9B19-485F-A969-9549C04CE50E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DietTracker.Domain", "DietTracker.Domain\DietTracker.Domain.csproj", "{E173B5DE-CE60-4446-90BB-DCB08D8829E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DietTracker.Domain", "DietTracker.Domain\DietTracker.Domain.csproj", "{E173B5DE-CE60-4446-90BB-DCB08D8829E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DietTracker.Infra", "DietTracker.Infra\DietTracker.Infra.csproj", "{5A5DA1F3-EA20-49A3-A02C-A828A4CDA949}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DietTracker.Infra", "DietTracker.Infra\DietTracker.Infra.csproj", "{5A5DA1F3-EA20-49A3-A02C-A828A4CDA949}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DietTrackerBot.Function", "DietTrackerBot.Function\DietTrackerBot.Function.csproj", "{803D78D5-74FB-4AF1-87B8-2D5725167271}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +25,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{060B6B86-6B04-42DD-AD3A-2B42A16879C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{060B6B86-6B04-42DD-AD3A-2B42A16879C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{060B6B86-6B04-42DD-AD3A-2B42A16879C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{060B6B86-6B04-42DD-AD3A-2B42A16879C7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B3C51510-9B19-485F-A969-9549C04CE50E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B3C51510-9B19-485F-A969-9549C04CE50E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3C51510-9B19-485F-A969-9549C04CE50E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -41,15 +37,19 @@ Global
 		{5A5DA1F3-EA20-49A3-A02C-A828A4CDA949}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A5DA1F3-EA20-49A3-A02C-A828A4CDA949}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A5DA1F3-EA20-49A3-A02C-A828A4CDA949}.Release|Any CPU.Build.0 = Release|Any CPU
+		{803D78D5-74FB-4AF1-87B8-2D5725167271}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{803D78D5-74FB-4AF1-87B8-2D5725167271}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{803D78D5-74FB-4AF1-87B8-2D5725167271}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{803D78D5-74FB-4AF1-87B8-2D5725167271}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{060B6B86-6B04-42DD-AD3A-2B42A16879C7} = {EA9F605E-DCAD-4D84-B6BD-62BE15C2D359}
 		{B3C51510-9B19-485F-A969-9549C04CE50E} = {2FDF3942-B95E-416B-957D-09F3846356D9}
 		{E173B5DE-CE60-4446-90BB-DCB08D8829E5} = {FBCF468E-99DA-4B98-9246-7942D0C5CE8E}
 		{5A5DA1F3-EA20-49A3-A02C-A828A4CDA949} = {482BA2E1-7032-479B-808E-D4362E660F13}
+		{803D78D5-74FB-4AF1-87B8-2D5725167271} = {EA9F605E-DCAD-4D84-B6BD-62BE15C2D359}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9FE9AB38-384F-4D1A-B62E-7D9F3B6E3FE9}
