@@ -13,11 +13,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Infra", "3 - Infra", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DietTrackerBot.Application", "DietTrackerBot.Application\DietTrackerBot.Application.csproj", "{B3C51510-9B19-485F-A969-9549C04CE50E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DietTracker.Domain", "DietTracker.Domain\DietTracker.Domain.csproj", "{E173B5DE-CE60-4446-90BB-DCB08D8829E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DietTrackerBot.Domain", "DietTracker.Domain\DietTrackerBot.Domain.csproj", "{E173B5DE-CE60-4446-90BB-DCB08D8829E5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DietTracker.Infra", "DietTracker.Infra\DietTracker.Infra.csproj", "{5A5DA1F3-EA20-49A3-A02C-A828A4CDA949}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DietTrackerBot.Infra", "DietTracker.Infra\DietTrackerBot.Infra.csproj", "{5A5DA1F3-EA20-49A3-A02C-A828A4CDA949}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DietTrackerBot.Function", "DietTrackerBot.Function\DietTrackerBot.Function.csproj", "{803D78D5-74FB-4AF1-87B8-2D5725167271}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DietTrackerBot.Function", "DietTrackerBot.Function\DietTrackerBot.Function.csproj", "{803D78D5-74FB-4AF1-87B8-2D5725167271}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
