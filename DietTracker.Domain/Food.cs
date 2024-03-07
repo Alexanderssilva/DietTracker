@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,27 +8,28 @@ using System.Threading.Tasks;
 namespace DietTrackerBot.Domain
 {
 
+
     public class Food
     {
-        public _Id _id { get; set; }
+
+        public ObjectId Id { get; set; }
         public int FoodNumber { get; set; }
         public string FoodName { get; set; }
         public string Type { get; set; }
-        public Energy Energy { get; set; }
-        public float Protein { get; set; }
-        public float Carbs { get; set; }
-        public float Fiber { get; set; }
+        public double Energy_kcal { get; set; }
+        public double Energy_kJ { get; set; }
+
+        public double Protein { get; set; }
+        public double Carbs { get; set; }
+        public double Fiber { get; set; }
     }
 
-    public class _Id
-    {
-        public string oid { get; set; }
-    }
+
 
     public class Energy
     {
-        public int kcal { get; set; }
-        public int kJ { get; set; }
+        public int Kcal { get; set; }
+        public int KJ { get; set; }
     }
 
 }

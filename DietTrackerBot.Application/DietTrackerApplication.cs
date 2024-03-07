@@ -1,5 +1,8 @@
 ﻿using DietTrackerBot.Application.Interfaces;
+using DietTrackerBot.Domain;
 using DietTrackerBot.Infra.Interfaces;
+using System.Collections.Generic;
+using System.Text;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -12,28 +15,38 @@ namespace DietTrackerBot.Application
         {
             _repository = repository;
         }
-        public async Task FoodSearchBtn(Update update)
-        {
-            if (update.Message?.From?.IsBot == true)
-                return "bots não Comem";
-            if (update.Message is null)
-                return "erro geral contate o administrador";
-
-
-        }
         public async Task<string> TextMessage(Update update)
         {
             if (update.Message?.From?.IsBot == true)
-                return "bots não tem calorias";
+                return "bots não ingerem calorias";
             if (update.Message is null)
                 return "erro geral contate o administrador";
 
             switch(update.Message.Text)
             {
                 case string s when s.StartsWith("#CALORIAS:", StringComparison.CurrentCultureIgnoreCase):
-                    Dictionary<string, int> foods = ConvertToDictionary(update.Message.Text, "#Calorias:");
-                    var responses = _repository.SearchFoods(foods);
+                    Dictionary<string, double> foods = ConvertToDictionary(update.Message.Text, "#Calorias:");
+                    List<Food> list = [];
+                    foreach(var food in foods)
+                    {
+                        var foodDict = new Dictionary<string, double>();
+                        var responses = await _repository.SearchFoods(new Dictionary<string, double> { { food.Key, food.Value } });
+                        foreach(var response in responses)
+                        {
+                            response.Fiber = (float)Nutrient(response.Fiber, food.Value);
+                            list.Add(response);
+
+                        }
+                    }
+                    StringBuilder result = new();
+                    foreach (var food in list)
+                    {
+                        result.AppendLine($"Alimento: {food.FoodName}, Calorias: {food.Energy_kcal} kcal - {food.Energy_kJ} KJ, Proteína: {food.Protein} g, Carboidratos: {food.Carbs} g, Fibra: {food.Fiber} g");
+                    }
+                    return result.ToString();
+
                     break;
+
 
                 default:
                     //salva usuario
@@ -41,21 +54,21 @@ namespace DietTrackerBot.Application
                     //retorna Mensagem Primaria
                     return $@"Olá {update.Message.From?.FirstName},
                          Sou o DietTracker estou a disposição para contar calorias e ajudar em seus objetivos fitness \n
-                         use o comando #Calorias: para contar calorias do alimento que deseja\n
-                         escreva da seguinte forma\n
-                         #calorias: alimento,peso em gramas\n
-                         ex.:#calorias: arroz - 10,pão - 20\n
-                         ex.:#CALORIAS: banana - 50,uva - 50\n
-                         (não é sensitivo a maiusculas ou minusculas)\n
+                         use o comando #Calorias: para contar calorias do alimento que deseja
+                         escreva da seguinte forma
+                         #calorias: alimento,peso em gramas
+                         ex.:#calorias: arroz - 10,pão - 20
+                         ex.:#CALORIAS: banana - 50,uva - 50
+                         (não é sensitivo a maiusculas ou minusculas)
                          seu primeiro nome será e Id do telegram será salvo em nosso banco de dados para facilitar sua jornada.
                         ";
-                    break;
             }
+            return "erro";
         }
-        static Dictionary<string, int> ConvertToDictionary(string inputString,string prefixo)
+        static Dictionary<string, double> ConvertToDictionary(string inputString,string prefixo)
         {
             var texto = inputString[prefixo.Length..].TrimStart();
-            var dictionary = new Dictionary<string, int>();
+            var dictionary = new Dictionary<string, double>();
 
             // Divide a string em cada item separado por vírgula
             string[] items = texto.Split(',');
@@ -63,7 +76,7 @@ namespace DietTrackerBot.Application
             foreach (var item in items)
             {
                 // Divide cada item em nome e peso usando o padrão " - "
-                string[] parts = item.Trim().Split(" - ");
+                string[] parts = item.Trim().Split("-");
                 string weightString = parts[1].TrimEnd('g');
 
                 if (parts.Length == 2)
@@ -100,10 +113,9 @@ namespace DietTrackerBot.Application
             var replyKeyboardMarkup = new ReplyKeyboardMarkup(keyboardButtons);
 
         }
-
-        public Task SaveUser(User user)
+        private static double Nutrient(double nutrient,double weight)
         {
-            throw new NotImplementedException();
+            return (nutrient * weight / 100);
         }
     }
 }
