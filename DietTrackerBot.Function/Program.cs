@@ -6,6 +6,7 @@ using DietTrackerBot.Application;
 using DietTrackerBot.Infra.Context;
 using DietTrackerBot.Infra.Interfaces;
 using DietTrackerBot.Infra;
+using DietTrackerBot.Application.Factories;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -14,6 +15,8 @@ var host = new HostBuilder()
         services.AddSingleton<MongoContext>();
         services.AddSingleton<IDietTrackerApplication, DietTrackerApplication>();
         services.AddSingleton<IDietTrackerRepository, DietTrackerRepository>();
+        services.AddSingleton<IResponseFactory, ResponseFactory>();
+
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
     })
