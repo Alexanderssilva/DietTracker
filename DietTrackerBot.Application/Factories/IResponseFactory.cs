@@ -11,7 +11,7 @@ namespace DietTrackerBot.Application.Factories
     public interface IResponseFactory
     {
         ResponseDto CreateTextResponse(string text);
-        ResponseDto CreatePollResponse(List<Food> foods);
-
+        ResponseDto CreatePollResponse(List<List<FoodDto>> foods);
+        public ResponseDto EditResponse(string text);
     }
 }

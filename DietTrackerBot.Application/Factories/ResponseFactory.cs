@@ -10,7 +10,7 @@ namespace DietTrackerBot.Application.Factories
 {
     public class ResponseFactory : IResponseFactory
     {
-        public ResponseDto CreatePollResponse(List<Food> options)
+        public ResponseDto CreatePollResponse(List<List<FoodDto>> options)
         {
 
             return new PollResponse
@@ -20,6 +20,10 @@ namespace DietTrackerBot.Application.Factories
         }
 
         public ResponseDto CreateTextResponse(string text)
+        {
+            throw new NotImplementedException();
+        }
+        public ResponseDto EditResponse(string text)
         {
             throw new NotImplementedException();
         }

@@ -15,18 +15,10 @@ namespace DietTrackerBot.Infra
             _context = context;
         }
 
-        public async Task<List<Food>> SearchFoods(Dictionary<string, double> foods)
+        public async Task<List<Food>> SearchFoods(string food)
         {
-            List<Food> foodList = [];
-
-            foreach (var food in foods)
-            {
-                var filter = Builders<Food>.Filter.Regex("FoodName", new BsonRegularExpression(food.Key, "i"));
-                var findedFoods = await _context.Foods.Find(filter).ToListAsync();
-
-                foodList.AddRange(findedFoods);
-            }
-            return foodList;
+            var filter = Builders<Food>.Filter.Regex("FoodName", new BsonRegularExpression(food.Trim(), "i"));
+            return await _context.Foods.Find(filter).ToListAsync();
         }
 
     }

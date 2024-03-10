@@ -13,6 +13,8 @@ using DietTrackerBot.Application.Dto;
 using Google.Protobuf.WellKnownTypes;
 using System.Threading;
 using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using System.Text;
 
 namespace DietTrackerBot.Function
 {
@@ -30,13 +32,14 @@ namespace DietTrackerBot.Function
             switch (update.Type)
             {
                 case UpdateType.Message://normal message
-                    var response = await _dietApplication.TextMessage(update);
-                    await SendMessage(response, update);
+                    var foodList = await _dietApplication.TextMessage(update);
+                    await SendMessage(foodList, update);
                     break;
                 case UpdateType.CallbackQuery://btn selected
-                    var response1 = update.CallbackQuery.Data;
-
+                    var caloriesCount = await _dietApplication.ButtonMessage(update);
+                    await SendMessage(caloriesCount, update);
                     break;
+
             }
             return new OkResult();
         }
@@ -45,17 +48,34 @@ namespace DietTrackerBot.Function
             switch (response)
             {
                 case PollResponse pollResponse:
-                    List<InlineKeyboardButton[]> keyboardRows = pollResponse.Foods.Select(option =>
-                    new[] { InlineKeyboardButton.WithCallbackData(text: option.FoodName, callbackData: option.FoodNumber.ToString()) }
-                    ).ToList();
-                    InlineKeyboardMarkup inlineKeyboard = new(keyboardRows);
-                    await _client.SendTextMessageAsync(chatId: update?.Message?.Chat?.Id,
-                                                       text: "Qual é a sua opção",
-                                                       replyMarkup: inlineKeyboard,
-                                                       cancellationToken: CancellationToken.None);
+                    //BTNs
+                    foreach (var food in pollResponse.Foods)
+                    {
+                        List<InlineKeyboardButton[]> keyboardRows = food.Select(option =>
+                        new[] { InlineKeyboardButton.WithCallbackData(text: option.FoodName, callbackData: option.FoodNumber.ToString()) }
+                        ).ToList();
+                        InlineKeyboardMarkup inlineKeyboard = new(keyboardRows);
+                        await _client.SendTextMessageAsync(chatId: update?.Message?.Chat?.Id,
+                                                           text: "Qual é a sua opção",
+                                                           replyMarkup: inlineKeyboard,
+                                                           cancellationToken: CancellationToken.None);
+                    }
+
                     break;
                 case TextResponse textResponse:
-                    await _client.SendTextMessageAsync(chatId: update?.Message?.Chat?.Id,text: textResponse.Text);
+                    await _client.SendTextMessageAsync(chatId: update?.Message?.Chat?.Id, text: textResponse.Text);
+                    break;
+                case ButtonResponse buttonResponse:
+                    var messageId = update?.CallbackQuery?.Message?.MessageId;
+                    if (messageId is not null)
+                    {
+                        await _client.EditMessageTextAsync(
+                              chatId: update?.CallbackQuery?.Message?.Chat?.Id,
+                              messageId: messageId.Value,
+                              text: "Teste",
+                              replyMarkup: null
+                              );
+                    }
                     break;
             }
         }

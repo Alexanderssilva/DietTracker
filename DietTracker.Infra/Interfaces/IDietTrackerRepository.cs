@@ -9,7 +9,7 @@ namespace DietTrackerBot.Infra.Interfaces
 {
     public interface IDietTrackerRepository
     {
-        Task<List<Food>> SearchFoods(Dictionary<string,double> food);
+        Task<List<Food>> SearchFoods(string food);
 
     }
 }

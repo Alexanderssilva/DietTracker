@@ -14,7 +14,7 @@ namespace DietTrackerBot.Application
     {
         private readonly IDietTrackerRepository _repository;
         private readonly IResponseFactory _factory;
-        public DietTrackerApplication(IDietTrackerRepository repository,IResponseFactory responseFactory) 
+        public DietTrackerApplication(IDietTrackerRepository repository, IResponseFactory responseFactory)
         {
             _repository = repository;
             _factory = responseFactory;
@@ -26,19 +26,31 @@ namespace DietTrackerBot.Application
             if (update.Message is null)
                 return _factory.CreateTextResponse("erro geral contate o administrador");
 
-            switch(update.Message.Text)
+            switch (update.Message.Text)
             {
                 case string s when s.StartsWith("#CALORIAS:", StringComparison.CurrentCultureIgnoreCase):
                     Dictionary<string, double> foods = ConvertToDictionary(update.Message.Text, "#Calorias:");
-                    List<string> list = [];
-                    foreach(var food in foods)
+                    List<List<FoodDto>> list = [];
+                    foreach (var food in foods)
                     {
-                        var foodDict = new Dictionary<string, double>();
-                        var responses = await _repository.SearchFoods(new Dictionary<string, double> { { food.Key, food.Value } });
+                        var responses = await _repository.SearchFoods(food.Key);
+                        var foodDtos = responses.Select(response => new FoodDto
+                        {
+                            FoodNumber = response.FoodNumber,
+                            FoodName = response.FoodName,
+                            Type = response.Type,
+                            Energy_kcal = response.Energy_kcal,
+                            Energy_kJ = response.Energy_kJ,
+                            Protein = response.Protein,
+                            Carbs = response.Carbs,
+                            Fiber = response.Fiber,
+                            Weight = food.Value
+                        }).ToList();
 
-                        return _factory.CreatePollResponse(responses);
+                        list.Add(foodDtos);
                     }
 
+                    return _factory.CreatePollResponse(list);
 
                     break;
 
@@ -58,9 +70,12 @@ namespace DietTrackerBot.Application
                          seu primeiro nome será e Id do telegram será salvo em nosso banco de dados para facilitar sua jornada.
                         ");
             }
-            return _factory.CreateTextResponse("erro");
         }
-        static Dictionary<string, double> ConvertToDictionary(string inputString,string prefixo)
+        public async Task<ResponseDto> ButtonMessage(Update update)
+        {
+            return _factory.EditResponse("text");
+        }
+        static Dictionary<string, double> ConvertToDictionary(string inputString, string prefixo)
         {
             var texto = inputString[prefixo.Length..].TrimStart();
             var dictionary = new Dictionary<string, double>();
@@ -81,20 +96,7 @@ namespace DietTrackerBot.Application
             }
             return dictionary;
         }
-        private static void ShowSelectableList(Dictionary<string,int> foods)
-        {
-            var options = new List<string> { "Opção 1", "Opção 2", "Opção 3" };
-
-            var keyboardButtons = new List<KeyboardButton[]>();
-
-            foreach (var option in options)
-            {
-                keyboardButtons.Add([new KeyboardButton(option)]);
-            }
-            var replyKeyboardMarkup = new ReplyKeyboardMarkup(keyboardButtons);
-
-        }
-        private static double Nutrient(double nutrient,double weight)
+        private static double Nutrient(double nutrient, double weight)
         {
             return (nutrient * weight / 100);
         }
