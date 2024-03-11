@@ -25,7 +25,7 @@ namespace DietTrackerBot.Application.Factories
         }
         public ResponseDto EditResponse(string text)
         {
-            throw new NotImplementedException();
+            return new ButtonResponse { Text = text };
         }
 
 

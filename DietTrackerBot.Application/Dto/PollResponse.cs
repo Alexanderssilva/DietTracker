@@ -10,7 +10,7 @@ namespace DietTrackerBot.Application.Dto
 {
     public class PollResponse:ResponseDto
     {
-        public List<List<FoodDto>> Foods { get; set; }
+        public List<List<FoodDto>>? Foods { get; set; }
 
     }
 }

@@ -34,26 +34,27 @@ namespace DietTrackerBot.Application
                     foreach (var food in foods)
                     {
                         var responses = await _repository.SearchFoods(food.Key);
-                        var foodDtos = responses.Select(response => new FoodDto
+                        if (responses.Any())
                         {
-                            FoodNumber = response.FoodNumber,
-                            FoodName = response.FoodName,
-                            Type = response.Type,
-                            Energy_kcal = response.Energy_kcal,
-                            Energy_kJ = response.Energy_kJ,
-                            Protein = response.Protein,
-                            Carbs = response.Carbs,
-                            Fiber = response.Fiber,
-                            Weight = food.Value
-                        }).ToList();
+                            var foodDtos = responses.Select(response => new FoodDto
+                            {
+                                FoodNumber = response.FoodNumber,
+                                FoodName = response.FoodName,
+                                Type = response.Type,
+                                Energy_kcal = response.Energy_kcal,
+                                Energy_kJ = response.Energy_kJ,
+                                Protein = response.Protein,
+                                Carbs = response.Carbs,
+                                Fiber = response.Fiber,
+                                Weight = food.Value
+                            }).ToList();
 
-                        list.Add(foodDtos);
+                            list.Add(foodDtos);
+                        }
+
                     }
 
                     return _factory.CreatePollResponse(list);
-
-                    break;
-
 
                 default:
                     //salva usuario
@@ -73,7 +74,32 @@ namespace DietTrackerBot.Application
         }
         public async Task<ResponseDto> ButtonMessage(Update update)
         {
-            return _factory.EditResponse("text");
+            var data = update.CallbackQuery.Data.Split('-');
+            int.TryParse(data[0], out int id);
+            double.TryParse(data[1], out double weight);
+            var food = await _repository.SearchFoodByFoodNumber(id);
+            FoodDto foodDto = new()
+            {
+                FoodName =food.FoodName,
+                FoodNumber = food.FoodNumber,
+                Type = food.Type,
+                Energy_kcal = Nutrient(food.Energy_kcal,weight),
+                Energy_kJ = Nutrient(food.Energy_kJ,weight),
+                Protein = Nutrient(food.Protein,weight),
+                Carbs = Nutrient(food.Carbs,weight),
+                Fiber = Nutrient(food.Fiber,weight),
+                Weight = weight
+            };
+
+            return _factory.EditResponse(@$"Você ingeriu:
+    {foodDto.FoodName},
+    Tipo: {foodDto.Type},
+    Calorias: {foodDto.Energy_kcal} Kcal, {foodDto.Energy_kJ} KJ,
+    Proteínas: {foodDto.Protein} g,
+    Carboidratos: {foodDto.Carbs} g,
+    Fibras: {foodDto.Fiber} g,
+    Peso em gramas: {foodDto.Weight} g"
+            );
         }
         static Dictionary<string, double> ConvertToDictionary(string inputString, string prefixo)
         {
@@ -98,7 +124,7 @@ namespace DietTrackerBot.Application
         }
         private static double Nutrient(double nutrient, double weight)
         {
-            return (nutrient * weight / 100);
+            return Math.Round((nutrient * weight / 100),2);
         }
     }
 }

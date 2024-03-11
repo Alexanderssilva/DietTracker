@@ -20,6 +20,11 @@ namespace DietTrackerBot.Infra
             var filter = Builders<Food>.Filter.Regex("FoodName", new BsonRegularExpression(food.Trim(), "i"));
             return await _context.Foods.Find(filter).ToListAsync();
         }
+        public async Task<Food> SearchFoodByFoodNumber(int foodNumber)
+        {
+            var filter = Builders<Food>.Filter.Eq(f => f.FoodNumber,foodNumber);
+            return await _context.Foods.Find(filter).FirstOrDefaultAsync();
+        }
 
     }
 }

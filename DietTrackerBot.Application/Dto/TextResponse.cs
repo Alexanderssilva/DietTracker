@@ -8,6 +8,5 @@ namespace DietTrackerBot.Application.Dto
 {
     public class TextResponse: ResponseDto
     {
-        public string Text { get; set; }
     }
 }

@@ -14,8 +14,8 @@ namespace DietTrackerBot.Domain
 
         public ObjectId Id { get; set; }
         public int FoodNumber { get; set; }
-        public string FoodName { get; set; }
-        public string Type { get; set; }
+        public string? FoodName { get; set; }
+        public string? Type { get; set; }
         public double Energy_kcal { get; set; }
         public double Energy_kJ { get; set; }
 

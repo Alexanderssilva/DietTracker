@@ -10,6 +10,7 @@ namespace DietTrackerBot.Infra.Interfaces
     public interface IDietTrackerRepository
     {
         Task<List<Food>> SearchFoods(string food);
+        Task<Food> SearchFoodByFoodNumber(int foodNumber);
 
     }
 }

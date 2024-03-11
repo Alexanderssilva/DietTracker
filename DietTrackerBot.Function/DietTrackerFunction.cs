@@ -15,6 +15,7 @@ using System.Threading;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using System.Text;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace DietTrackerBot.Function
 {
@@ -28,7 +29,10 @@ namespace DietTrackerBot.Function
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            Update update = JsonConvert.DeserializeObject<Update>(requestBody);
+            Update? update = JsonConvert.DeserializeObject<Update>(value: requestBody);
+            if(update == null)
+               return new BadRequestResult();
+            
             switch (update.Type)
             {
                 case UpdateType.Message://normal message
@@ -45,17 +49,20 @@ namespace DietTrackerBot.Function
         }
         private async Task SendMessage(ResponseDto response, Update update)
         {
+
             switch (response)
             {
                 case PollResponse pollResponse:
                     //BTNs
                     foreach (var food in pollResponse.Foods)
                     {
-                        List<InlineKeyboardButton[]> keyboardRows = food.Select(option =>
-                        new[] { InlineKeyboardButton.WithCallbackData(text: option.FoodName, callbackData: option.FoodNumber.ToString()) }
+                        List<InlineKeyboardButton[]> keyboardRows = food.
+                            OrderBy(option => option.FoodNumber).
+                            Select(option =>
+                        new[] { InlineKeyboardButton.WithCallbackData(text: option.FoodName, callbackData: option.FoodNumber.ToString()+"-"+option.Weight.ToString()) }
                         ).ToList();
                         InlineKeyboardMarkup inlineKeyboard = new(keyboardRows);
-                        await _client.SendTextMessageAsync(chatId: update?.Message?.Chat?.Id,
+                        await _client.SendTextMessageAsync(chatId: update.Message.Chat.Id,
                                                            text: "Qual é a sua opção",
                                                            replyMarkup: inlineKeyboard,
                                                            cancellationToken: CancellationToken.None);
@@ -63,16 +70,17 @@ namespace DietTrackerBot.Function
 
                     break;
                 case TextResponse textResponse:
-                    await _client.SendTextMessageAsync(chatId: update?.Message?.Chat?.Id, text: textResponse.Text);
+
+                    await _client.SendTextMessageAsync(chatId: update.Message.Chat.Id, text: textResponse.Text);
                     break;
                 case ButtonResponse buttonResponse:
                     var messageId = update?.CallbackQuery?.Message?.MessageId;
-                    if (messageId is not null)
+                    if (messageId is not null && buttonResponse.Text is not null)
                     {
                         await _client.EditMessageTextAsync(
                               chatId: update?.CallbackQuery?.Message?.Chat?.Id,
                               messageId: messageId.Value,
-                              text: "Teste",
+                              text: buttonResponse.Text,
                               replyMarkup: null
                               );
                     }
