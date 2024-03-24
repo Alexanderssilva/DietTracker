@@ -17,17 +17,11 @@ namespace DietTrackerBot.Infra.Context
             string dataBaseName = "DietTracker";// new MongoUrl(_connectionString).DatabaseName;
 
             _database = mongoClient.GetDatabase(dataBaseName);
-           // ConfigureConventions();
         }
         public IMongoCollection<User> Users => _database.GetCollection<User>("Users");
         public IMongoCollection<Food> Foods => _database.GetCollection<Food>("Foods");
+        public IMongoCollection<Meal> Meals => _database.GetCollection<Meal>("Meals");
 
-
-        private static void ConfigureConventions()
-        {
-            var conventionPack = new ConventionPack { new CamelCaseElementNameConvention() };
-            ConventionRegistry.Register("CustomConventions", conventionPack, _ => true);
-        }
 
     }
 

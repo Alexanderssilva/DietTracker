@@ -3,7 +3,7 @@ namespace DietTrackerBot.Infra.Interfaces
 {
     public interface IUserRepository
     {
-        Task SaveUser(string name, int id);
-        Task<User> FindUser(string id);
+        Task SaveUser(string name, Guid id);
+        Task<User> FindUser(Guid id);
     }
 }

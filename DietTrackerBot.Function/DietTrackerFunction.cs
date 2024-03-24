@@ -58,11 +58,11 @@ namespace DietTrackerBot.Function
                     {
                         List<InlineKeyboardButton[]> keyboardRows = food.
                             OrderBy(option => option.FoodNumber).
-                            Select(option =>
-                        new[] { InlineKeyboardButton.WithCallbackData(text: option.FoodName, callbackData: option.FoodNumber.ToString()+"-"+option.Weight.ToString()) }
+                            Select(option => 
+                        new[] { InlineKeyboardButton.WithCallbackData(text: option.FoodName, callbackData: JsonConvert.SerializeObject(option.CallBackData)) }
                         ).ToList();
                         InlineKeyboardMarkup inlineKeyboard = new(keyboardRows);
-                        await _client.SendTextMessageAsync(chatId: update.Message.Chat.Id,
+                        await _client.SendTextMessageAsync(chatId: update?.Message?.Chat?.Id,
                                                            text: "Qual é a sua opção",
                                                            replyMarkup: inlineKeyboard,
                                                            cancellationToken: CancellationToken.None);
@@ -88,7 +88,23 @@ namespace DietTrackerBot.Function
             }
         }
 
+        [Function("Function2")]
+        public async Task<IActionResult> Test([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
+        {
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            dynamic data = JsonConvert.DeserializeObject(requestBody);
 
+
+            string food = data?.Food;
+            string foodNumber = data?.number;
+            if (int.TryParse(foodNumber, out int number))
+            {
+                var response = await _dietApplication.GetFoodWithChatGPT(food, number);
+            }
+
+
+            return new OkResult();
+        }
 
     }
 }

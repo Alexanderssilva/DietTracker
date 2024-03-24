@@ -13,20 +13,24 @@ namespace DietTrackerBot.Infra
         public UserRepository(MongoContext context)
         {
             _context = context;
-             
+
         }
 
-        public async Task<User> FindUser(string id)
+        public async Task<User> FindUser(Guid id)
         {
-            var filter = Builders<User>.Filter.Eq(id, id);
+            var filter = Builders<User>.Filter.Eq(u => u._id, id);
             var userFinded = await _context.Users.Find(filter).FirstOrDefaultAsync();
             return userFinded;
         }
 
-        public async Task SaveUser(string name, int id)
+        public async Task SaveUser(string name, Guid id)
         {
-             var user = new User(name, id);
-             await _context.Users.InsertOneAsync(user);
+            User user = new()
+             {
+               Name = name,
+               _id = id
+            };
+            await _context.Users.InsertOneAsync(user);
         }
 
     }

@@ -3,21 +3,31 @@ using DietTrackerBot.Application.Factories;
 using DietTrackerBot.Application.Interfaces;
 using DietTrackerBot.Domain;
 using DietTrackerBot.Infra.Interfaces;
-using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using System.Security.Cryptography;
 using System.Text;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace DietTrackerBot.Application
 {
     public class DietTrackerApplication : IDietTrackerApplication
     {
-        private readonly IDietTrackerRepository _repository;
+        private readonly IDietTrackerRepository _dietRepository;
+        private readonly IMealRepository _mealRepository;
+        private readonly IConfiguration _configuration;
+
         private readonly IResponseFactory _factory;
-        public DietTrackerApplication(IDietTrackerRepository repository, IResponseFactory responseFactory)
+        public DietTrackerApplication(IDietTrackerRepository dietRepository,
+                                      IMealRepository mealRepository ,
+                                      IResponseFactory responseFactory,
+                                      IConfiguration configuration)
         {
-            _repository = repository;
+            _dietRepository = dietRepository;
+            _mealRepository = mealRepository;
             _factory = responseFactory;
+            _configuration = configuration;
+
         }
         public async Task<ResponseDto> TextMessage(Update update)
         {
@@ -31,31 +41,53 @@ namespace DietTrackerBot.Application
                 case string s when s.StartsWith("#CALORIAS:", StringComparison.CurrentCultureIgnoreCase):
                     Dictionary<string, double> foods = ConvertToDictionary(update.Message.Text, "#Calorias:");
                     List<List<FoodDto>> list = [];
+                    string mealId = GenerateRandomHash();
                     foreach (var food in foods)
                     {
-                        var responses = await _repository.SearchFoods(food.Key);
+                        var responses = await _dietRepository.SearchFoods(food.Key);
                         if (responses.Any())
                         {
-                            var foodDtos = responses.Select(response => new FoodDto
-                            {
-                                FoodNumber = response.FoodNumber,
-                                FoodName = response.FoodName,
-                                Type = response.Type,
-                                Energy_kcal = response.Energy_kcal,
-                                Energy_kJ = response.Energy_kJ,
-                                Protein = response.Protein,
-                                Carbs = response.Carbs,
-                                Fiber = response.Fiber,
-                                Weight = food.Value
-                            }).ToList();
+                            var foodDtos = responses.Select(response => FoodDto.ToDto(response))
+                                                    .Select(dto =>
+                                                    {
+                                                        dto.CallBackData  = new MealDto()
+                                                        {
+                                                            FoodNumber = dto.FoodNumber,
+                                                            MealId = mealId,
+                                                            Weigth = food.Value
+                                                        };
+                                                        return dto;
+                                                    }).ToList();
 
                             list.Add(foodDtos);
                         }
+                        else
+                        {
+                            int totalFoods = await _dietRepository.FoodCount();
+                            var foodDtos = await GetFoodWithChatGPT(food.Key, totalFoods);
+                            foodDtos.ForEach(async foodDto =>
+                            {
+                                Food food2 = FoodDto.ToFood(foodDto);
+                                await _dietRepository.InsertFood(food2);
+                                foodDto.CallBackData = new MealDto()
+                                {
+                                    MealId = mealId,
+                                    FoodNumber = foodDto.FoodNumber,
+                                    Weigth = food.Value
+                                };
+                            });
+                            list.Add(foodDtos);
+
+                        }
 
                     }
-
                     return _factory.CreatePollResponse(list);
 
+                case string s when s.StartsWith("/TOTALDODIA:", StringComparison.CurrentCultureIgnoreCase):
+                    var meals = _mealRepository.GetMeal(update.Message.From.Id.ToString());
+                    return _factory.CreateTextResponse("");
+
+                    break;
                 default:
                     //salva usuario
 
@@ -74,32 +106,26 @@ namespace DietTrackerBot.Application
         }
         public async Task<ResponseDto> ButtonMessage(Update update)
         {
-            var data = update.CallbackQuery.Data.Split('-');
-            int.TryParse(data[0], out int id);
-            double.TryParse(data[1], out double weight);
-            var food = await _repository.SearchFoodByFoodNumber(id);
-            FoodDto foodDto = new()
-            {
-                FoodName =food.FoodName,
-                FoodNumber = food.FoodNumber,
-                Type = food.Type,
-                Energy_kcal = Nutrient(food.Energy_kcal,weight),
-                Energy_kJ = Nutrient(food.Energy_kJ,weight),
-                Protein = Nutrient(food.Protein,weight),
-                Carbs = Nutrient(food.Carbs,weight),
-                Fiber = Nutrient(food.Fiber,weight),
-                Weight = weight
-            };
+            var data = JsonConvert.DeserializeObject<MealDto>(update.CallbackQuery.Data);
+            Meal meal = MealDto.ToMeal(data,update.CallbackQuery.From.Id.ToString());
+            var food = FoodDto.ToDto(await _dietRepository.SearchFoodByFoodNumber(data.FoodNumber));
+            await _mealRepository.SaveMeal(meal);
+
+            food.Energy_kcal = Nutrient(food.Energy_kcal, data.Weigth);
+            food.Energy_kJ = Nutrient(food.Energy_kJ, data.Weigth);
+            food.Protein = Nutrient(food.Protein, data.Weigth);
+            food.Carbs = Nutrient(food.Carbs, data.Weigth);
+            food.Fiber = Nutrient(food.Fiber, data.Weigth);
 
             return _factory.EditResponse(@$"Você ingeriu:
-    {foodDto.FoodName},
-    Tipo: {foodDto.Type},
-    Calorias: {foodDto.Energy_kcal} Kcal, {foodDto.Energy_kJ} KJ,
-    Proteínas: {foodDto.Protein} g,
-    Carboidratos: {foodDto.Carbs} g,
-    Fibras: {foodDto.Fiber} g,
-    Peso em gramas: {foodDto.Weight} g"
-            );
+                                            {food.FoodName},
+                                            Tipo: {food.Type},
+                                            Calorias: {food.Energy_kcal} Kcal, {food.Energy_kJ} KJ,
+                                            Proteínas: {food.Protein} g,
+                                            Carboidratos: {food.Carbs} g,
+                                            Fibras: {food.Fiber} g,
+                                            Peso em gramas: {data.Weigth} g"
+                                                    );
         }
         static Dictionary<string, double> ConvertToDictionary(string inputString, string prefixo)
         {
@@ -125,6 +151,53 @@ namespace DietTrackerBot.Application
         private static double Nutrient(double nutrient, double weight)
         {
             return Math.Round((nutrient * weight / 100),2);
+        }
+        public async Task<List<FoodDto>> GetFoodWithChatGPT(string food, int foodNumber)
+        {
+            //string apiUrl = "https://api.openai.com/v1/chat/completions";
+           string apiUrl = _configuration["GPTUrl"];
+
+           string apiKey = _configuration["GPTKey"];
+
+            var chat = new GPTRequest(food, foodNumber);
+           
+            var jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(chat);
+
+            var content = new StringContent(jsonPayload, System.Text.Encoding.UTF8, "application/json");
+            List<FoodDto> list = [];
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+
+            var response = await client.PostAsync(apiUrl, content);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                var resultBody = Newtonsoft.Json.JsonConvert.DeserializeObject<GPTResponse>(result);
+                foreach(var choice in resultBody.choices)
+                {
+                    var item =  Newtonsoft.Json.JsonConvert.DeserializeObject<FoodDto>(choice.message.content);
+                    item.FoodNumber = foodNumber+1 ;
+                    list.Add(item);
+                }
+            }
+         
+            return list;
+        }
+        static string GenerateRandomHash()
+        {
+            using MD5 md5 = MD5.Create();
+            byte[] randomBytes = new byte[16]; 
+            new RNGCryptoServiceProvider().GetBytes(randomBytes);
+
+            byte[] hashBytes = md5.ComputeHash(randomBytes);
+
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < 4; i++)
+            {
+                builder.Append(hashBytes[i].ToString("x2"));
+            }
+            return builder.ToString();
         }
     }
 }

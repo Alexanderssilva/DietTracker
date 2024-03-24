@@ -11,6 +11,8 @@ namespace DietTrackerBot.Infra.Interfaces
     {
         Task<List<Food>> SearchFoods(string food);
         Task<Food> SearchFoodByFoodNumber(int foodNumber);
+        Task<int> FoodCount();
+        Task InsertFood(Food food);
 
     }
 }
