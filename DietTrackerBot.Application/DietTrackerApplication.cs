@@ -15,16 +15,19 @@ namespace DietTrackerBot.Application
     {
         private readonly IDietTrackerRepository _dietRepository;
         private readonly IMealRepository _mealRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
 
         private readonly IResponseFactory _factory;
         public DietTrackerApplication(IDietTrackerRepository dietRepository,
                                       IMealRepository mealRepository ,
                                       IResponseFactory responseFactory,
+                                      IUserRepository userRepository,
                                       IConfiguration configuration)
         {
             _dietRepository = dietRepository;
             _mealRepository = mealRepository;
+            _userRepository = userRepository;
             _factory = responseFactory;
             _configuration = configuration;
 
@@ -88,10 +91,22 @@ namespace DietTrackerBot.Application
                     return _factory.CreateTextResponse("");
 
                     break;
+                case string s when s.StartsWith("/START", StringComparison.CurrentCultureIgnoreCase):
+                   var user = await _userRepository.FindUser(update.Message.From.Id.ToString());
+                    if (user != null)
+                        return _factory.CreateTextResponse($"Olá {user.Name}, Obrigado por retornar em que posso te ajudar?");
+                    await _userRepository.SaveUser(update.Message.From.FirstName, update.Message.From.Id.ToString());
+                    return _factory.CreateTextResponse($@"Olá {update.Message.From?.FirstName},
+                         Sou o DietTracker estou a disposição para contar calorias e ajudar em seus objetivos fitness \n
+                         use o comando #Calorias: para contar calorias do alimento que deseja
+                         escreva da seguinte forma
+                         #calorias: alimento,peso em gramas
+                         ex.:#calorias: arroz - 10g,pão - 20g
+                         ex.:#CALORIAS: banana - 50g,uva - 50g
+                         (não é sensitivo a maiusculas ou minusculas)
+                         seu primeiro nome será e Id do telegram será salvo em nosso banco de dados para facilitar sua jornada.
+                        ");
                 default:
-                    //salva usuario
-
-                    //retorna Mensagem Primaria
                     return _factory.CreateTextResponse($@"Olá {update.Message.From?.FirstName},
                          Sou o DietTracker estou a disposição para contar calorias e ajudar em seus objetivos fitness \n
                          use o comando #Calorias: para contar calorias do alimento que deseja

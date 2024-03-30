@@ -16,14 +16,14 @@ namespace DietTrackerBot.Infra
 
         }
 
-        public async Task<User> FindUser(Guid id)
+        public async Task<User> FindUser(string id)
         {
-            var filter = Builders<User>.Filter.Eq(u => u._id, id);
+            var filter = Builders<User>.Filter.Eq("Id", id);
             var userFinded = await _context.Users.Find(filter).FirstOrDefaultAsync();
             return userFinded;
         }
 
-        public async Task SaveUser(string name, Guid id)
+        public async Task SaveUser(string name, string id)
         {
             User user = new()
              {

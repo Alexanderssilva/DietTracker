@@ -16,13 +16,14 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using System.Text;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Configuration;
 
 namespace DietTrackerBot.Function
 {
-    public class DietTrackerFunction(IDietTrackerApplication dietTrackerApplication)
+    public class DietTrackerFunction(IDietTrackerApplication dietTrackerApplication,IConfiguration configuration)
     {
 
-        private readonly TelegramBotClient _client = new("6395942850:AAETZwxdNXQdhMiUaWRawtouyNoXlbLwwuY");
+        private readonly TelegramBotClient _client = new(token: configuration["TelegramToken"]);
         private readonly IDietTrackerApplication _dietApplication = dietTrackerApplication;
 
         [Function("Function1")]
