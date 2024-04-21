@@ -31,7 +31,7 @@ namespace DietTrackerBot.Function
 
 
         [Function("Function1")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             Update? update = JsonConvert.DeserializeObject<Update>(value: requestBody);
