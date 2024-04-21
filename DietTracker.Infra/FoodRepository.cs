@@ -7,10 +7,10 @@ using MongoDB.Driver;
 
 namespace DietTrackerBot.Infra
 {
-    public class DietTrackerRepository : IDietTrackerRepository
+    public class FoodRepository : IFoodRepository
     {
         private readonly MongoContext _context;
-        public DietTrackerRepository(MongoContext context)
+        public FoodRepository(MongoContext context)
         {
             _context = context;
         }
@@ -31,9 +31,9 @@ namespace DietTrackerBot.Infra
             await _context.Foods.InsertOneAsync(food);
         }
 
-        public Task<int> FoodCount()
+        public async Task<int> FoodCount()
         {
-            throw new NotImplementedException();
+           return (int)await _context.Foods.CountDocumentsAsync(FilterDefinition<Food>.Empty);
         }
     }
 }

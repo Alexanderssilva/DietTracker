@@ -17,6 +17,9 @@ using MongoDB.Driver;
 using System.Text;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
+using DietTrackerBot.Application.Strategies.Processors;
+using DietTrackerBot.Application.Strategies.StrategiesFactories;
+using Microsoft.VisualBasic;
 
 namespace DietTrackerBot.Function
 {
@@ -26,6 +29,7 @@ namespace DietTrackerBot.Function
         private readonly TelegramBotClient _client = new(token: configuration["TelegramToken"]);
         private readonly IDietTrackerApplication _dietApplication = dietTrackerApplication;
 
+
         [Function("Function1")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
         {
@@ -33,19 +37,9 @@ namespace DietTrackerBot.Function
             Update? update = JsonConvert.DeserializeObject<Update>(value: requestBody);
             if(update == null)
                return new BadRequestResult();
-            
-            switch (update.Type)
-            {
-                case UpdateType.Message://normal message
-                    var foodList = await _dietApplication.TextMessage(update);
-                    await SendMessage(foodList, update);
-                    break;
-                case UpdateType.CallbackQuery://btn selected
-                    var caloriesCount = await _dietApplication.ButtonMessage(update);
-                    await SendMessage(caloriesCount, update);
-                    break;
 
-            }
+            var response =await _dietApplication.ReceiveRequest(update);
+            await SendMessage(response, update);
             return new OkResult();
         }
         private async Task SendMessage(ResponseDto response, Update update)
@@ -87,24 +81,6 @@ namespace DietTrackerBot.Function
                     }
                     break;
             }
-        }
-
-        [Function("Function2")]
-        public async Task<IActionResult> Test([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
-        {
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-
-
-            string food = data?.Food;
-            string foodNumber = data?.number;
-            if (int.TryParse(foodNumber, out int number))
-            {
-                var response = await _dietApplication.GetFoodWithChatGPT(food, number);
-            }
-
-
-            return new OkResult();
         }
 
     }

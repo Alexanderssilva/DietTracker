@@ -8,8 +8,9 @@ using Telegram.Bot.Types;
 
 namespace DietTrackerBot.Application.Strategies.Interfaces
 {
-    public interface ITextStrategy
+    public interface IUpdateStrategy
     {
-        Task<ResponseDto> HandleText(Update update);
+        Task<ResponseDto> HandleUpdate(Update update);
+
     }
 }

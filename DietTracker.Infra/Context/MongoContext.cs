@@ -14,9 +14,7 @@ namespace DietTrackerBot.Infra.Context
         {
             _connectionString = configuration.GetConnectionString("MongoConnection");
             var mongoClient = new MongoClient(_connectionString);
-            string dataBaseName = "DietTracker";// new MongoUrl(_connectionString).DatabaseName;
-
-            _database = mongoClient.GetDatabase(dataBaseName);
+            _database = mongoClient.GetDatabase("DietTrackerBotDB");
         }
         public IMongoCollection<User> Users => _database.GetCollection<User>("Users");
         public IMongoCollection<Food> Foods => _database.GetCollection<Food>("Foods");

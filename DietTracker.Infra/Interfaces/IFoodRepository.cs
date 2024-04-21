@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DietTrackerBot.Infra.Interfaces
 {
-    public interface IDietTrackerRepository
+    public interface IFoodRepository
     {
         Task<List<Food>> SearchFoods(string food);
         Task<Food> SearchFoodByFoodNumber(int foodNumber);

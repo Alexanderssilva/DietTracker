@@ -1,6 +1,8 @@
-﻿using DietTrackerBot.Application.Dto;
+﻿  using DietTrackerBot.Application.Dto;
 using DietTrackerBot.Application.Factories;
 using DietTrackerBot.Application.Interfaces;
+using DietTrackerBot.Application.Strategies.Processors;
+using DietTrackerBot.Application.Strategies.StrategiesFactories;
 using DietTrackerBot.Domain;
 using DietTrackerBot.Infra.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -11,27 +13,18 @@ using Telegram.Bot.Types;
 
 namespace DietTrackerBot.Application
 {
-    public class DietTrackerApplication : IDietTrackerApplication
+    public class DietTrackerApplication(IFoodRepository foodRepository,
+                                  IMealRepository mealRepository,
+                                  IResponseFactory responseFactory,
+                                  IUserRepository userRepository,
+                                  IConfiguration configuration) : IDietTrackerApplication
     {
-        private readonly IDietTrackerRepository _dietRepository;
-        private readonly IMealRepository _mealRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly IConfiguration _configuration;
+        private readonly IFoodRepository _foodRepository = foodRepository;
+        private readonly IMealRepository _mealRepository = mealRepository;
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IConfiguration _configuration = configuration;
+        private readonly IResponseFactory _factory = responseFactory;
 
-        private readonly IResponseFactory _factory;
-        public DietTrackerApplication(IDietTrackerRepository dietRepository,
-                                      IMealRepository mealRepository ,
-                                      IResponseFactory responseFactory,
-                                      IUserRepository userRepository,
-                                      IConfiguration configuration)
-        {
-            _dietRepository = dietRepository;
-            _mealRepository = mealRepository;
-            _userRepository = userRepository;
-            _factory = responseFactory;
-            _configuration = configuration;
-
-        }
         public async Task<ResponseDto> TextMessage(Update update)
         {
             if (update.Message?.From?.IsBot == true)
@@ -47,7 +40,7 @@ namespace DietTrackerBot.Application
                     string mealId = GenerateRandomHash();
                     foreach (var food in foods)
                     {
-                        var responses = await _dietRepository.SearchFoods(food.Key);
+                        var responses = await _foodRepository.SearchFoods(food.Key);
                         if (responses.Any())
                         {
                             var foodDtos = responses.Select(response => FoodDto.ToDto(response))
@@ -66,12 +59,12 @@ namespace DietTrackerBot.Application
                         }
                         else
                         {
-                            int totalFoods = await _dietRepository.FoodCount();
+                            int totalFoods = await _foodRepository.FoodCount();
                             var foodDtos = await GetFoodWithChatGPT(food.Key, totalFoods);
                             foodDtos.ForEach(async foodDto =>
                             {
                                 Food food2 = FoodDto.ToFood(foodDto);
-                                await _dietRepository.InsertFood(food2);
+                                await _foodRepository.InsertFood(food2);
                                 foodDto.CallBackData = new MealDto()
                                 {
                                     MealId = mealId,
@@ -87,7 +80,7 @@ namespace DietTrackerBot.Application
                     return _factory.CreatePollResponse(list);
 
                 case string s when s.StartsWith("/TOTALDODIA:", StringComparison.CurrentCultureIgnoreCase):
-                    var meals = _mealRepository.GetMeal(update.Message.From.Id.ToString());
+                    var meals = _mealRepository.GetDayMeals(update.Message.From.Id.ToString(),DateTime.Now);
                     return _factory.CreateTextResponse("");
 
                     break;
@@ -123,7 +116,7 @@ namespace DietTrackerBot.Application
         {
             var data = JsonConvert.DeserializeObject<MealDto>(update.CallbackQuery.Data);
             Meal meal = MealDto.ToMeal(data,update.CallbackQuery.From.Id.ToString());
-            var food = FoodDto.ToDto(await _dietRepository.SearchFoodByFoodNumber(data.FoodNumber));
+            var food = FoodDto.ToDto(await _foodRepository.SearchFoodByFoodNumber(data.FoodNumber));
             await _mealRepository.SaveMeal(meal);
 
             food.Energy_kcal = Nutrient(food.Energy_kcal, data.Weigth);
@@ -214,5 +207,18 @@ namespace DietTrackerBot.Application
             }
             return builder.ToString();
         }
+
+        public async Task<ResponseDto> ReceiveRequest(Update update)
+        {
+            UpdateStrategyFactory _update = new(_factory, _userRepository, _mealRepository, _foodRepository,_configuration);
+            return await _update.HandleUpdate(update);
+
+        }
+        //public Task<ResponseDto> ReceiveUpdate(Update update)
+        //{
+        //    TextStrategyFactory factory = new TextStrategyFactory(DietTrackerApplication);
+        //    TextProcessor processor = new TextProcessor(factory);
+        //    processor.ProcessText();
+        //}
     }
 }

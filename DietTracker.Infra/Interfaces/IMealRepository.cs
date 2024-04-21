@@ -11,5 +11,6 @@ namespace DietTrackerBot.Infra.Interfaces
     {
         Task SaveMeal(Meal meal);
         Task<List<Meal>> GetMeal(string id);
+        Task<List<Meal>> GetDayMeals(string id, DateTime date);
     }
 }

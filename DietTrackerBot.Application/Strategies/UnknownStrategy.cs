@@ -1,10 +1,12 @@
-﻿using DietTrackerBot.Application.Strategies.Interfaces;
+﻿using DietTrackerBot.Application.Dto;
+using DietTrackerBot.Application.Strategies.Interfaces;
+using Telegram.Bot.Types;
 
 namespace DietTrackerBot.Application.Strategies
 {
     public class UnknownStrategy : ITextStrategy
     {
-        public void HandleText()
+        public Task<ResponseDto> HandleText(Update update)
         {
             throw new NotImplementedException();
         }

@@ -14,7 +14,7 @@ var host = new HostBuilder()
     {
         services.AddSingleton<MongoContext>();
         services.AddSingleton<IDietTrackerApplication, DietTrackerApplication>();
-        services.AddSingleton<IDietTrackerRepository, DietTrackerRepository>();
+        services.AddSingleton<IFoodRepository, FoodRepository>();
         services.AddSingleton<IMealRepository, MealRepository>();
         services.AddSingleton<IUserRepository, UserRepository>();
 
