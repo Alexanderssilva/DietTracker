@@ -29,7 +29,7 @@ namespace DietTrackerBot.Application.Strategies.TextStrategies
 
         public async Task<ResponseDto> HandleText(Update update)
         {
-            Dictionary<string, double> foods = ConvertToDictionary(update.Message.Text, "#Calorias:");
+            Dictionary<string, double> foods = ConvertToDictionary(update.Message.Text, "#calorias:");
             List<List<FoodDto>> list = [];
             string mealId = GenerateRandomHash();
             foreach (var food in foods)
@@ -95,10 +95,7 @@ namespace DietTrackerBot.Application.Strategies.TextStrategies
             }
             return dictionary;
         }
-        //private static double Nutrient(double nutrient, double weight)
-        //{
-        //    return Math.Round((nutrient * weight / 100), 2);
-        //}
+
         public async Task<List<FoodDto>> GetFoodWithChatGPT(string food, int foodNumber)
         {
             string apiUrl = _configuration["GPTUrl"];
