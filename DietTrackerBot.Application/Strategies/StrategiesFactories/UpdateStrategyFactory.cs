@@ -17,7 +17,7 @@ namespace DietTrackerBot.Application.Strategies.StrategiesFactories
         private readonly IMealRepository _mealRepository;
         private readonly IFoodRepository _foodRepository;
         private readonly IResponseFactory _factory;
-        private readonly IConfiguration _configuraton;
+        private readonly IConfiguration _configuration;
         public UpdateStrategyFactory(
                          IResponseFactory factory,
                          IUserRepository userRepository,
@@ -30,12 +30,12 @@ namespace DietTrackerBot.Application.Strategies.StrategiesFactories
             _factory = factory;
             _userRepository = userRepository;
             _mealRepository = mealRepository;
-            _configuraton = configuration;
+            _configuration = configuration;
 
             _handlers = new Dictionary<UpdateType, IUpdateStrategy>
             {
-                {UpdateType.Message, new MessageStrategy(_factory,_userRepository,_mealRepository,_foodRepository,configuration) },
-                {UpdateType.CallbackQuery, new CallbackStrategy(_foodRepository,_mealRepository,_userRepository,_factory,_configuraton)}
+                {UpdateType.Message, new MessageStrategy(_factory,_userRepository,_mealRepository,_foodRepository,_configuration) },
+                {UpdateType.CallbackQuery, new CallbackStrategy(_foodRepository,_mealRepository,_userRepository,_factory,_configuration)}
             };
         }
 

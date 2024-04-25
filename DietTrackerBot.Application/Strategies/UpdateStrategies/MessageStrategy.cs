@@ -30,6 +30,7 @@ namespace DietTrackerBot.Application.Strategies.UpdateStrategies
             _userRepository=userRepository;
             _mealRepository=mealRepository;
             _foodRepository=foodRepository;
+            _configuration = configuration;
         }
 
 
