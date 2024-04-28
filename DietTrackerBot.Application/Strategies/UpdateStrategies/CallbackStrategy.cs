@@ -30,15 +30,15 @@ namespace DietTrackerBot.Application.Strategies.UpdateStrategies
 
             CalculateNutrients(food, data.Weigth);
 
-            return _factory.EditResponse(@$"Você ingeriu:
-                                            {food.FoodName},
-                                            Tipo: {food.Type},
-                                            Calorias: {food.Energy_kcal} Kcal, {food.Energy_kJ} KJ,
-                                            Proteínas: {food.Protein} g,
-                                            Carboidratos: {food.Carbs} g,
-                                            Fibras: {food.Fiber} g,
-                                            Peso em gramas: {data.Weigth} g"
-                                                    );
+            return _factory.EditResponse(@$"
+Você ingeriu:
+{food.FoodName},
+Tipo: {food.Type},
+Calorias: {food.Energy_kcal} Kcal, {food.Energy_kJ} KJ,
+Proteínas: {food.Protein} g,
+Carboidratos: {food.Carbs} g,
+Fibras: {food.Fiber} g,
+Peso em gramas: {data.Weigth} g");
         }
 
         private static void CalculateNutrients(FoodDto food, double weight)

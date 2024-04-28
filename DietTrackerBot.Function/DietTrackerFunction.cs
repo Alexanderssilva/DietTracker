@@ -20,26 +20,29 @@ using Microsoft.Extensions.Configuration;
 using DietTrackerBot.Application.Strategies.Processors;
 using DietTrackerBot.Application.Strategies.StrategiesFactories;
 using Microsoft.VisualBasic;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DietTrackerBot.Function
 {
-    public class DietTrackerFunction(IDietTrackerApplication dietTrackerApplication,IConfiguration configuration)
+    public class DietTrackerFunction(IDietTrackerApplication dietTrackerApplication, IConfiguration configuration)
     {
 
         private readonly TelegramBotClient _client = new(token: configuration["TelegramToken"]);
         private readonly IDietTrackerApplication _dietApplication = dietTrackerApplication;
 
 
-        [Function("Function1")]
+        [Function("DietTrackerBot")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
+
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             Update? update = JsonConvert.DeserializeObject<Update>(value: requestBody);
-            if(update == null)
-               return new BadRequestResult();
+            if (update == null)
+                return new BadRequestResult();
 
-            var response =await _dietApplication.ReceiveRequest(update);
+            var response = await _dietApplication.ReceiveRequest(update);
             await SendMessage(response, update);
+
             return new OkResult();
         }
         private async Task SendMessage(ResponseDto response, Update update)
@@ -53,7 +56,7 @@ namespace DietTrackerBot.Function
                     {
                         List<InlineKeyboardButton[]> keyboardRows = food.
                             OrderBy(option => option.FoodNumber).
-                            Select(option => 
+                            Select(option =>
                         new[] { InlineKeyboardButton.WithCallbackData(text: option.FoodName, callbackData: JsonConvert.SerializeObject(option.CallBackData)) }
                         ).ToList();
                         InlineKeyboardMarkup inlineKeyboard = new(keyboardRows);
@@ -80,6 +83,11 @@ namespace DietTrackerBot.Function
                               );
                     }
                     break;
+                case ErrorResponse errorResponse:
+                    await _client.SendTextMessageAsync(update.Message.Chat.Id, text: "Houve um erro com o Bot, Por gentileza, verifique o texto enviado e tente novamente");
+                    await _client.SendTextMessageAsync(1577760395, text: "Houve um erro com a aplicação:  " + errorResponse.Text);
+                    break;
+
             }
         }
 

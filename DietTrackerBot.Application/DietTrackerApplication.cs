@@ -7,6 +7,7 @@ using DietTrackerBot.Domain;
 using DietTrackerBot.Infra.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using Telegram.Bot.Types;
@@ -28,8 +29,15 @@ namespace DietTrackerBot.Application
 
         public async Task<ResponseDto> ReceiveRequest(Update update)
         {
-            UpdateStrategyFactory _update = new(_factory, _userRepository, _mealRepository, _foodRepository, _configuration);
-            return await _update.HandleUpdate(update);
+            try
+            {
+                UpdateStrategyFactory _update = new(_factory, _userRepository, _mealRepository, _foodRepository, _configuration);
+                return await _update.HandleUpdate(update);
+            }
+            catch (Exception ex)
+            {
+                return _factory.CreateErrorMessage($"Erro no Metodo{ex.Message}");
+            }
 
         }
     }

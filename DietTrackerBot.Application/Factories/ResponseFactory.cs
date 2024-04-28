@@ -28,6 +28,9 @@ namespace DietTrackerBot.Application.Factories
             return new ButtonResponse { Text = text };
         }
 
-
+        public ResponseDto CreateErrorMessage(string message)
+        {
+            return new ErrorResponse { Text = message };
+        }
     }
 }

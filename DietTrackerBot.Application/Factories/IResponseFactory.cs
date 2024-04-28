@@ -12,6 +12,7 @@ namespace DietTrackerBot.Application.Factories
     {
         ResponseDto CreateTextResponse(string text);
         ResponseDto CreatePollResponse(List<List<FoodDto>> foods);
-        public ResponseDto EditResponse(string text);
+        ResponseDto EditResponse(string text);
+        ResponseDto CreateErrorMessage(string message);
     }
 }
