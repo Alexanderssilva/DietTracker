@@ -99,7 +99,7 @@ Este comando não é sensível a maiúsculas ou minúsculas.
 ");
 
 
-                    await _client.SendTextMessageAsync(1577760395, text: @$"Houve um erro com a aplicação:  {errorResponse.Text}   USUARIO: {update.Message.From.FirstName} -  {update.Message.From.LastName}");
+                    await _client.SendTextMessageAsync(1577760395, text: @$"Houve um erro com a aplicação:  {errorResponse.Text}   USUARIO: {update.Message.From.FirstName} -  {update.Message.From.LastName} MENSAGEM: {update.Message.Text}");
                     break;
 
             }
