@@ -84,8 +84,22 @@ namespace DietTrackerBot.Function
                     }
                     break;
                 case ErrorResponse errorResponse:
-                    await _client.SendTextMessageAsync(update.Message.Chat.Id, text: "Houve um erro com o Bot, Por gentileza, verifique o texto enviado e tente novamente");
-                    await _client.SendTextMessageAsync(1577760395, text: "Houve um erro com a aplicação:  " + errorResponse.Text);
+                    await _client.SendTextMessageAsync(update.Message.Chat.Id, text: @"Houve um erro com o Bot, Por gentileza, verifique o texto enviado e tente novamente
+Para contar calorias de alimentos, utilize o comando #Calorias da seguinte forma:
+
+#calorias: alimento - peso em gramas
+
+Por exemplo:
+#calorias: arroz - 10g, pão - 20g
+#CALORIAS: banana - 50g, uva - 50g
+
+Este comando não é sensível a maiúsculas ou minúsculas.
+
+/totaldodia - Devolve o valor total de calorias ingeridas no dia
+");
+
+
+                    await _client.SendTextMessageAsync(1577760395, text: @$"Houve um erro com a aplicação:  {errorResponse.Text}   USUARIO: {update.Message.From.FirstName} -  {update.Message.From.LastName}");
                     break;
 
             }
